@@ -10,13 +10,11 @@ import {RGBToCMYK} from "../lib/RGBToCMYK";
 
 function Widget() {
   const widgetId = widget.useWidgetId();
-  const [count, setCount] = useSyncedState('count', 0)
   const [name, setName] = useSyncedState<string>('name', "ColorName");
   const [CMYK, setCMYK] = useSyncedState<{C: number, M: number, Y: number, K: number}>('cmyk', {C: 0, M: 0, Y: 0, K: 0});
   const [RGB, setRGB] = useSyncedState<{r: number, g: number, b: number}>('rgb', {r: 255, g: 255, b: 255});
   const [HEX, setHEX] = useSyncedState<string>('hex', "FFFFFF");
   const [load, setLoad] = useSyncedState<boolean>('load', true);
-  const [frameId, setFrameId] = useSyncedState<string>('frameId', "");
 
   usePropertyMenu([
     {itemType: 'action',
@@ -28,24 +26,29 @@ function Widget() {
   })
 
   useEffect(() => {
-      if(load) {
-        setLoad(false);
-        const currentWidget = figma.getNodeById(widgetId) as WidgetNode;
-        const frame = figma.createFrame();
-        frame.x = currentWidget.x;
-        frame.y = currentWidget.y;
-        currentWidget.x = 0;
-        currentWidget.y = 0;
-        frame.resize(400, 400);
-        frame.appendChild(currentWidget);
-        figma.currentPage.appendChild(frame);
-        setFrameId(frame.id);
-      }
+    // console.log(widgetId); widget複製したらその度にwidget.useWidgetId()は呼び出されるらしく、widgetIdには複製したwidgetのIDが含まれているらしい
+    const currentWidget = figma.getNodeById(widgetId) as WidgetNode; //ので、ここで取得されるのは複製されたwidget
+    let frameId :string = currentWidget.parent? currentWidget.parent.id : "";
 
-      if(frameId !== "") {
-        const frame = figma.getNodeById(frameId) as FrameNode;
-        frame.fills = [{ type: 'SOLID', color: {r: RGB.r/255,g: RGB.g/255, b: RGB.b/255} }];
-      }
+    if(load) {
+      // ロードが完了した時に実行される処理
+      // フレームを追加する
+      setLoad(false);
+      const frame = figma.createFrame();
+      frame.x = currentWidget.x;
+      frame.y = currentWidget.y;
+      currentWidget.x = 0;
+      currentWidget.y = 0;
+      frame.resize(400, 400);
+      frame.appendChild(currentWidget);
+      figma.currentPage.appendChild(frame);
+      frameId = frame.id;
+    }
+    if(frameId !== "") {
+      const frame = figma.getNodeById(frameId) as FrameNode;
+      frame.fills = [{ type: 'SOLID', color: {r: RGB.r/255,g: RGB.g/255, b: RGB.b/255} }];
+    }
+    
     })
 
   return (

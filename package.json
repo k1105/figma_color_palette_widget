@@ -13,6 +13,7 @@
     "@figma/plugin-typings": "*",
     "@figma/widget-typings": "*",
     "esbuild": "*",
+    "eslint": "^8.38.0",
     "typescript": "*"
   }
 }
