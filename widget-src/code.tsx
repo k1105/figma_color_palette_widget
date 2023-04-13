@@ -16,13 +16,41 @@ function Widget() {
   const [HEX, setHEX] = useSyncedState<string>('hex', "FFFFFF");
   const [load, setLoad] = useSyncedState<boolean>('load', true);
 
+  const [textStyles, setTextStyles] = useSyncedState<TextStyle[]>("textStyle", []);
+  const [selectedFont, setSelectedFont] = useSyncedState<string>("selectedFont", "default");
+  const [fontOptions, setFontOptions] = useSyncedState("fontOptions", [{option: "default", label: "Default"}]);
+
   usePropertyMenu([
     {itemType: 'action',
-      tooltip: 'LayoutSettng',
-    propertyName: 'Layout Setting'}
-  ], ()=>{
-    //@ts-ignore
-    alert("coming soon...")
+      tooltip: 'Load text styles',
+    propertyName: 'LoadLocalTextStyles'},
+    {
+      itemType: 'dropdown',
+      propertyName: 'fonts',
+      tooltip: 'Font selector',
+      selectedOption: selectedFont,
+      options: fontOptions,
+    },
+  ], ({propertyName, propertyValue})=>{
+    if(propertyName==="LoadLocalTextStyles") {
+      const txtStyles = figma.getLocalTextStyles();
+      setTextStyles(txtStyles);
+
+      const loadedOptions = [{option: "default", label: "Default"}];
+      for(const style of txtStyles) {
+        loadedOptions.push({option: style.name, label: style.name});
+      }
+
+      setFontOptions(loadedOptions);
+    }
+
+    if(propertyName === "fonts") {
+      if(propertyValue!=="default" && propertyValue !== undefined) {
+        setSelectedFont(propertyValue);
+        //@ts-ignore
+        alert("coming soon...")
+      }
+    }
   })
 
   useEffect(() => {
@@ -48,7 +76,7 @@ function Widget() {
       const frame = figma.getNodeById(frameId) as FrameNode;
       frame.fills = [{ type: 'SOLID', color: {r: RGB.r/255,g: RGB.g/255, b: RGB.b/255} }];
     }
-    
+
     })
 
   return (
