@@ -15,14 +15,16 @@ function Widget() {
   const [RGB, setRGB] = useSyncedState<{r: number, g: number, b: number}>('rgb', {r: 255, g: 255, b: 255});
   const [HEX, setHEX] = useSyncedState<string>('hex', "FFFFFF");
   const [load, setLoad] = useSyncedState<boolean>('load', true);
+  const [color, setColor] = useSyncedState("color", "#000");
 
-  const [textStyles, setTextStyles] = useSyncedState<TextStyle[]>("textStyle", []);
+  const [textStyles, setTextStyles] = useSyncedState<TextStyle[]>("textStyles", []);
   const [selectedFont, setSelectedFont] = useSyncedState<string>("selectedFont", "default");
   const [fontOptions, setFontOptions] = useSyncedState("fontOptions", [{option: "default", label: "Default"}]);
+  const [textStyle, setTextStyle] = useSyncedState<TextStyle|undefined>("textStyle", undefined);
 
   usePropertyMenu([
     {itemType: 'action',
-      tooltip: 'Load text styles',
+      tooltip: 'Load styles',
     propertyName: 'LoadLocalTextStyles'},
     {
       itemType: 'dropdown',
@@ -30,6 +32,13 @@ function Widget() {
       tooltip: 'Font selector',
       selectedOption: selectedFont,
       options: fontOptions,
+    },
+    {
+      itemType: 'color-selector',
+      propertyName: 'colors',
+      tooltip: 'Color selector',
+      selectedOption: color,
+      options: [{option: "#000", tooltip: "Black"}, {option: "#FFF", tooltip: "White"} ],
     },
   ], ({propertyName, propertyValue})=>{
     if(propertyName==="LoadLocalTextStyles") {
@@ -45,11 +54,18 @@ function Widget() {
     }
 
     if(propertyName === "fonts") {
-      if(propertyValue!=="default" && propertyValue !== undefined) {
+      if(propertyValue!=="default" && propertyValue) {
         setSelectedFont(propertyValue);
         //@ts-ignore
-        alert("coming soon...")
+        alert("comming soon...");
+
+        // const selectedTextStyle = textStyles.find(function(font){return font.name == propertyValue});
+        // setTextStyle(selectedTextStyle);
       }
+    }
+
+    if(propertyName === "colors" && propertyValue) {
+      setColor(propertyValue);
     }
   })
 
@@ -90,12 +106,12 @@ function Widget() {
     >
       <Input
         name="Name"
-        fill="#000"
+        fill={color}
         value={name}
         placeholder="Name"
         inputBehavior="wrap"
-        fontFamily="Inter"
-        fontSize={18}
+        fontFamily={textStyle? textStyle.fontName.family : "Inter"}
+        fontSize={textStyle? textStyle.fontSize : 18}
         verticalAlignText="center"
         onTextEditEnd={(e)=>{setName(e.characters)}}
       />
@@ -105,7 +121,7 @@ function Widget() {
       >
         <Text
           name="LableC"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -113,7 +129,7 @@ function Widget() {
         </Text>
         <Input
         name="ValueC"
-        fill="#000"
+        fill={color}
         width={35}
         value={String(CMYK.C)}
         
@@ -129,7 +145,7 @@ function Widget() {
         />
         <Text
           name="LabelM"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -137,7 +153,7 @@ function Widget() {
         </Text>
         <Input
         name="ValueM"
-        fill="#000"
+        fill={color}
         width={35}
         value={String(CMYK.M)}
         
@@ -153,7 +169,7 @@ function Widget() {
         />
         <Text
           name="LabelY"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -161,7 +177,7 @@ function Widget() {
         </Text>
         <Input
         name="ValueY"
-        fill="#000"
+        fill={color}
         width={35}
         value={String(CMYK.Y)}
         
@@ -177,7 +193,7 @@ function Widget() {
         />
         <Text
           name="LabelK"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -185,7 +201,7 @@ function Widget() {
         </Text>
         <Input
         name="ValueK"
-        fill="#000"
+        fill={color}
         width={35}
         value={String(CMYK.K)}
         
@@ -206,7 +222,7 @@ function Widget() {
       >
         <Text
           name="LabelR"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -214,7 +230,7 @@ function Widget() {
         </Text>
         <Input
         name="ValueR"
-        fill="#000"
+        fill={color}
         width={35}
         value={String(RGB.r)}
         
@@ -235,7 +251,7 @@ function Widget() {
         />
         <Text
           name="LabelG"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -243,7 +259,7 @@ function Widget() {
         </Text>
         <Input
         name="ValueG"
-        fill="#000"
+        fill={color}
         width={35}
         value={String(RGB.g)}
         
@@ -263,7 +279,7 @@ function Widget() {
         />
         <Text
           name="LabelB"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -271,7 +287,7 @@ function Widget() {
         </Text>
         <Input
         name="ValueB"
-        fill="#000"
+        fill={color}
         width={35}
         value={String(RGB.b)}
         
@@ -296,7 +312,7 @@ function Widget() {
       >
         <Text
           name="Label"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -304,7 +320,7 @@ function Widget() {
         </Text>
         <Input
         name="Value"
-        fill="#000"
+        fill={color}
         width={100}
         value={HEX}
         
@@ -328,7 +344,7 @@ function Widget() {
       >
         <Text
           name="Label"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -336,7 +352,7 @@ function Widget() {
         </Text>
         <Text
           name="Value"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -349,7 +365,7 @@ function Widget() {
       >
         <Text
           name="Label"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
@@ -357,7 +373,7 @@ function Widget() {
         </Text>
         <Text
           name="Value"
-          fill="#000"
+          fill={color}
           fontFamily="Inter"
           fontSize={18}
         >
